@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Web phụ</title>
+</head>
+<body>
+    <h2>WEB PHỤ</h2>
+    <div id="output"></div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const msg = params.get("msg");
+
+        if (msg) {
+            document.getElementById("output").innerText =
+                decodeURIComponent(msg);
+        } else {
+            document.getElementById("output").innerText =
+                "Không có dữ liệu được gửi!";
+        }
+    </script>
+</body>
+</html>
