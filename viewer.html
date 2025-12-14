@@ -13,18 +13,16 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
-const firebaseConfig = {
+firebase.initializeApp({
   apiKey: "AIzaSyBZYXFNDGRNXG3mQ6q175CyvzKyJUYhUDw",
-  authDomain: "http://bobacn-fcc2c.firebaseapp.com",
-  databaseURL: "https://bobacn-fcc2c-default-rtdb.firebaseio.com/",
+  authDomain: "bobacn-fcc2c.firebaseapp.com",
+  databaseURL: "https://bobacn-fcc2c-default-rtdb.firebaseio.com",
   projectId: "bobacn-fcc2c"
-};
+});
 
-firebase.initializeApp(firebaseConfig);
-var db = firebase.database();
-
-db.ref("noidung").on("value", function(snapshot){
-  document.getElementById("view").innerText = snapshot.val();
+firebase.database().ref("noidung").on("value", function(snapshot){
+  document.getElementById("view").innerText =
+    snapshot.val() || "Chưa có dữ liệu";
 });
 </script>
 
