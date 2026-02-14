@@ -1,0 +1,190 @@
+-------------------------------------------------
+-- SERVICES
+-------------------------------------------------
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
+local TextChatService = game:GetService("TextChatService")
+
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+-------------------------------------------------
+-- 👑 CONFIG
+-------------------------------------------------
+local OWNER_NAME = "ehfphvg362"
+local DEPUTY_NAME = "Ygc242"
+
+-------------------------------------------------
+-- 🤖 AUTO CHAT KHI OWNER CHAT
+-------------------------------------------------
+local TRIGGER_TEXT = "/tagsever"
+local AUTO_CHAT_TEXT = "baconhub"
+
+local function hookOwnerChat(plr)
+	if plr.Name ~= OWNER_NAME then return end
+
+	plr.Chatted:Connect(function(msg)
+		if string.lower(msg) == TRIGGER_TEXT then
+			task.wait(0.3)
+
+			if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+				TextChatService.TextChannels.RBXGeneral:SendAsync(AUTO_CHAT_TEXT)
+			else
+				ReplicatedStorage
+					.DefaultChatSystemChatEvents
+					.SayMessageRequest
+					:FireServer(AUTO_CHAT_TEXT, "All")
+			end
+		end
+	end)
+end
+
+-------------------------------------------------
+-- 👑 TAG (CHỈ PHÓ OWNER)
+-------------------------------------------------
+local function createTag(character, text, color)
+	local head = character:WaitForChild("Head", 5)
+	if not head then return end
+	
+	if head:FindFirstChild("RoleTag") then
+		head.RoleTag:Destroy()
+	end
+
+	local billboard = Instance.new("BillboardGui")
+	billboard.Name = "RoleTag"
+	billboard.Size = UDim2.new(0, 150, 0, 36)
+	billboard.StudsOffset = Vector3.new(0, 2.8, 0)
+	billboard.AlwaysOnTop = true
+	billboard.Parent = head
+
+	local label = Instance.new("TextLabel")
+	label.Size = UDim2.new(1,0,1,0)
+	label.BackgroundTransparency = 1
+	label.Text = "👑 " .. text .. " 👑"
+	label.TextColor3 = color
+	label.TextStrokeTransparency = 0
+	label.TextStrokeColor3 = Color3.fromRGB(0,0,0)
+	label.Font = Enum.Font.GothamBold
+	label.TextScaled = true
+	label.Parent = billboard
+end
+
+local function setupRole(player)
+
+	-- ❌ KHÔNG TẠO TAG CHO OWNER
+	if player.Name == OWNER_NAME then
+		hookOwnerChat(player)
+
+	-- ✅ CHỈ TẠO TAG PHÓ OWNER
+	elseif player.Name == DEPUTY_NAME then
+		
+		local function apply(char)
+			createTag(char, "PHÓ OWNER", Color3.fromRGB(255,240,120))
+		end
+		
+		if player.Character then apply(player.Character) end
+		player.CharacterAdded:Connect(apply)
+	end
+end
+
+-- Kích hoạt
+for _, p in ipairs(Players:GetPlayers()) do
+	setupRole(p)
+end
+Players.PlayerAdded:Connect(setupRole)
+
+-------------------------------------------------
+-- 🔑 KEY SYSTEM (GIỮ NGUYÊN)
+-------------------------------------------------
+local KEY_FILE = "bacon_key.txt"
+
+local function saveKey(key)
+	pcall(function()
+		if writefile then
+			writefile(KEY_FILE, key)
+		end
+	end)
+end
+
+local function loadKey()
+	local saved
+	pcall(function()
+		if readfile and isfile and isfile(KEY_FILE) then
+			saved = readfile(KEY_FILE)
+		end
+	end)
+	return saved
+end
+
+local gui = Instance.new("ScreenGui", PlayerGui)
+gui.Name = "MenuKey"
+gui.ResetOnSpawn = false
+
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0, 320, 0, 260)
+frame.Position = UDim2.new(0.5, -160, 0.5, -130)
+frame.BackgroundColor3 = Color3.fromRGB(25,25,25)
+frame.BorderSizePixel = 0
+frame.Active = true
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0,14)
+
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1,0,0,40)
+title.BackgroundTransparency = 1
+title.Text = "🔑 MENU KEY"
+title.TextColor3 = Color3.fromRGB(0,170,255)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 18
+
+local box = Instance.new("TextBox", frame)
+box.Size = UDim2.new(0.85,0,0,40)
+box.Position = UDim2.new(0.075,0,0,70)
+box.PlaceholderText = "Nhập key vào đây..."
+box.Font = Enum.Font.Gotham
+box.TextSize = 14
+box.TextColor3 = Color3.fromRGB(255,255,255)
+box.BackgroundColor3 = Color3.fromRGB(40,40,40)
+box.ClearTextOnFocus = true
+Instance.new("UICorner", box)
+
+local savedKey = loadKey()
+if savedKey and savedKey ~= "" then
+	box.Text = savedKey
+end
+
+local confirm = Instance.new("TextButton", frame)
+confirm.Size = UDim2.new(0.6,0,0,40)
+confirm.Position = UDim2.new(0.2,0,0,125)
+confirm.Text = "XÁC NHẬN KEY"
+confirm.Font = Enum.Font.GothamBold
+confirm.TextSize = 14
+confirm.TextColor3 = Color3.fromRGB(255,255,255)
+confirm.BackgroundColor3 = Color3.fromRGB(0,120,255)
+Instance.new("UICorner", confirm)
+
+local status = Instance.new("TextLabel", frame)
+status.Size = UDim2.new(1,0,0,30)
+status.Position = UDim2.new(0,0,1,-30)
+status.BackgroundTransparency = 1
+status.Text = ""
+status.Font = Enum.Font.Gotham
+status.TextSize = 13
+status.TextColor3 = Color3.fromRGB(255,255,255)
+
+local function processKey(key)
+	if key == "hay" then
+		saveKey(key)
+		gui:Destroy()
+		return true
+	end
+	return false
+end
+
+confirm.MouseButton1Click:Connect(function()
+	if not processKey(box.Text) then
+		box.Text = ""
+		status.Text = "❌ Key không đúng!"
+		status.TextColor3 = Color3.fromRGB(255,80,80)
+	end
+end)
